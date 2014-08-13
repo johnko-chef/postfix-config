@@ -18,6 +18,7 @@
 # limitations under the License.
 #
 
+# TODO config maintenance master dovecot delivery
 default['postfix']['master']['dovecot'] = false
 
 case node['platform_family']
@@ -43,16 +44,18 @@ when 'freebsd'
   set['postfix']['main']['inet_protocols'] = 'ipv4'
   # end defaults in 2.11.1_2,1 on freebsd:10:x86:64  #defaults server
 
-  # mynetworks should be the networks to trust
+  # TODO config maintenance mailbox_command
+  set['postfix']['main']['mailbox_command'] = '/usr/local/libexec/dovecot/deliver -c /usr/local/etc/dovecot/conf.d/01-dovecot-postfix.conf -n -m "${EXTENSION}"'
+  # TODO config maintenance mynetworks should be the networks to trust
   set['postfix']['main']['mynetworks'] = '127.0.0.0/8 10.7.7.0/24 10.123.234.0/24'
   # override common
   set['postfix-config']['domain_for_destination'] = node['postfix']['main']['mydomain']
   set['postfix']['main']['use_alias_maps'] == 'yes'
+  # TODO config maintenance mydestination maybe remove domain_for_destination
   set['postfix']['main']['mydestination'] = [node['postfix-config']['domain_for_destination'], node['postfix']['main']['myhostname'], node['hostname'], 'localhost.localdomain', 'localhost'].compact
   set['postfix']['main']['home_mailbox'] = 'Maildir/'
   message_size_limit = '52428800'
   maximal_backoff_time = 600
-  set['postfix']['main']['mailbox_command'] = '/usr/lib/dovecot/deliver -c /etc/dovecot/conf.d/01-dovecot-postfix.conf -n -m "${EXTENSION}"'
 
   #override server
   case node['postfix']['mail_type']
@@ -65,8 +68,10 @@ when 'freebsd'
     set['postfix']['main']['smtpd_tls_key_file'] = '/etc/ssl/private/ssl-cert-snakeoil.key'
     # SSL/TLS
     set['postfix']['main']['smtpd_tls_received_header'] = 'yes'
+    # TODO maintenance remove SSLv3 when possible
     set['postfix']['main']['smtpd_tls_mandatory_protocols'] = 'SSLv3, TLSv1'
-    set['postfix']['main']['smtpd_tls_mandatory_ciphers'] = 'medium'
+    # TODO maintenance should later add to exclude :!3DES
+    set['postfix']['main']['smtpd_tls_mandatory_ciphers'] = 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!ADH:!aNULL:!eNULL:!EXP:!LOW:!RC4:!DES:!PSK:!MD5:!SEED:!MEDIUM:!DSS:!CAMELLIA;'
     set['postfix']['main']['smtpd_enforce_tls'] = 'yes'
     set['postfix']['main']['smtpd_tls_auth_only'] = 'yes'
     set['postfix']['main']['smtpd_delay_reject'] = 'yes'
@@ -79,11 +84,13 @@ when 'freebsd'
     set['postfix']['main']['local_only'] = "check_recipient_access hash:#{node['postfix']['conf_dir']}/local_domains, reject"
     # smtpd sasl
     set['postfix']['main']['smtpd_sasl_auth_enable'] = 'yes'
+    # TODO config maintenance smtpd_sasl_type
     set['postfix']['main']['smtpd_sasl_type'] = 'dovecot'
+    # TODO config maintenance smtpd_sasl_path
     set['postfix']['main']['smtpd_sasl_path'] = 'private/dovecot-auth'
     set['postfix']['main']['smtpd_sasl_authenticated_header'] = 'yes'
-    set['postfix']['main']['smtpd_sasl_security_options'] = 'noanonymous'
-    set['postfix']['main']['smtpd_sasl_tls_security_options'] = 'noanonymous'
+    set['postfix']['main']['smtpd_sasl_security_options'] = 'noplaintext, noanonymous'
+    set['postfix']['main']['smtpd_sasl_tls_security_options'] = 'noplaintext, noanonymous'
     set['postfix']['main']['smtpd_sasl_local_domain'] = '$myhostname'
     set['postfix']['main']['broken_sasl_auth_clients'] = 'yes'
   end
@@ -91,10 +98,14 @@ when 'freebsd'
   # override client
   set['postfix']['main']['smtp_use_tls'] = 'yes'
   set['postfix']['main']['smtp_sasl_auth_enable'] == 'yes'
+  # TODO config maintenance smtp_sasl_user_name
   set['postfix']['sasl']['smtp_sasl_user_name'] = ''
+  # TODO config maintenance smtp_sasl_passwd
   set['postfix']['sasl']['smtp_sasl_passwd']    = ''
-  set['postfix']['main']['smtp_sasl_security_options'] = ''
-  set['postfix']['main']['smtp_sasl_tls_security_options'] = ''
+  set['postfix']['main']['smtp_sasl_security_options'] = 'noplaintext, noanonymous'
+  set['postfix']['main']['smtp_sasl_tls_security_options'] = 'noplaintext, noanonymous'
+  # TODO config maintenance relayhost
   set['postfix']['main']['relayhost'] = '[outbound.mailhop.org]:2525'
+  # TODO config maintenance relay_domains that we will pass to relay for
   set['postfix']['main']['relay_domains'] = node['postfix']['main']['mydomain']
 end

@@ -9,24 +9,17 @@
 # service type  private unpriv  chroot  wakeup  maxproc command + args
 #               (yes)   (yes)   (yes)   (never) (100)
 # ==========================================================================
-smtp      inet  n       -       n       -       -       smtpd
+#smtp      inet  n       -       n       -       -       smtpd
 #smtp      inet  n       -       n       -       1       postscreen
 #smtpd     pass  -       -       n       -       -       smtpd
 #dnsblog   unix  -       -       n       -       0       dnsblog
 #tlsproxy  unix  -       -       n       -       0       tlsproxy
 <% if @settings['submission'] -%>
-########## Start Not FreeBSD default
 submission inet n       -       n       -       -       smtpd
-  -o smtpd_enforce_tls=yes
-  -o smtpd_sasl_auth_enable=yes
-  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
-########## End Not FreeBSD default
   -o syslog_name=postfix/submission
   -o smtpd_tls_security_level=encrypt
   -o smtpd_reject_unlisted_recipient=no
   -o smtpd_helo_restrictions=$mua_helo_restrictions
-  -o smtpd_sender_restrictions=$mua_sender_restrictions
-  -o smtpd_recipient_restrictions=
   -o smtpd_relay_restrictions=permit_sasl_authenticated,reject
   -o milter_macro_daemon_name=ORIGINATING
 <% end -%>
@@ -152,8 +145,9 @@ scache    unix  -       -       n       -       1       scache
 <% if @settings['dovecot'] -%>
 ########## Start Not FreeBSD default
 dovecot   unix  -       n       n       -       -       pipe
-  flags=DRhu user=mailnull:mail argv=/usr/local/libexec/dovecot/deliver -c /etc/dovecot/conf.d/01-dovecot-postfix.conf -f $sender -d $recipient
+  flags=DRhu user=mailnull:mail argv=/usr/local/libexec/dovecot/deliver -c /usr/local/etc/dovecot/conf.d/01-dovecot-postfix.conf -f $sender -d $recipient
 # Or possibly try the next line instead
-#  flags=DRhu user=mailnull:mail argv=/usr/local/libexec/dovecot/deliver -c /etc/dovecot/conf.d/01-dovecot-postfix.conf -f $sender -d ${user}@${nexthop} -n -m ${extension}
+#  flags=DRhu user=mailnull:mail argv=/usr/local/libexec/dovecot/deliver -c /usr/local/etc/dovecot/conf.d/01-dovecot-postfix.conf -f $sender -d ${user}@${nexthop} -n -m ${extension}
+#  flags=DRhu user=mailnull:mail argv=/usr/local/libexec/dovecot/deliver -c /usr/local/etc/dovecot/conf.d/01-dovecot-postfix.conf -n -m ${extension}
 ########## End Not FreeBSD default
 <% end -%>
