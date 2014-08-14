@@ -85,9 +85,9 @@ when 'freebsd'
     # smtpd sasl
     set['postfix']['main']['smtpd_sasl_auth_enable'] = 'yes'
     # TODO config maintenance smtpd_sasl_type
-    set['postfix']['main']['smtpd_sasl_type'] = 'dovecot'
+    set['postfix']['main']['smtpd_sasl_type'] = 'cyrus'
     # TODO config maintenance smtpd_sasl_path
-    set['postfix']['main']['smtpd_sasl_path'] = 'private/dovecot-auth'
+    set['postfix']['main']['smtpd_sasl_path'] = 'smtpd'
     set['postfix']['main']['smtpd_sasl_authenticated_header'] = 'yes'
     set['postfix']['main']['smtpd_sasl_security_options'] = 'noplaintext, noanonymous'
     set['postfix']['main']['smtpd_sasl_tls_security_options'] = 'noplaintext, noanonymous'
