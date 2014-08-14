@@ -8,7 +8,6 @@ version          '0.1.0'
 
 recipe           'postfix-config', 'Configures postfix'
 depends          'postfix'
-depends          'sysrc'
 depends          'svc'
 
 %w(freebsd).each do |os|
