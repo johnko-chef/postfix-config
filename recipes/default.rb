@@ -40,16 +40,6 @@ if platform?("freebsd")
     Chef::Log.warn "could not find template to override!"
   end
 
-  # Enable and start service with svc library
-
-  svc 'postfix' do
-    service_name 'postfix'
-    supports value_for_platform(
-      'freebsd' => { 'default' => [:restart, :reload, :status] }
-    )
-    action [ :enable, :start ]
-  end
-
   # Try to run postfix check, and restart with svc library
 
   execute "postfix-configtest" do
